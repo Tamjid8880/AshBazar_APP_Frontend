@@ -1,21 +1,23 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
-import '../utility/constants.dart';
+import '../utility/app_color.dart';
 
 class MultiSelectDropDown<T> extends StatelessWidget {
+  final String? hintText;
   final List<T> items;
   final Function(List<T>) onSelectionChanged;
   final String Function(T) displayItem;
   final List<T> selectedItems;
 
   const MultiSelectDropDown({
-    Key? key,
+    super.key,
     required this.items,
     required this.onSelectionChanged,
     required this.displayItem,
     required this.selectedItems,
-  }) : super(key: key);
+    this.hintText = 'Select Items',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,23 +27,24 @@ class MultiSelectDropDown<T> extends StatelessWidget {
           child: DropdownButton2<T>(
             isExpanded: true,
             hint: Text(
-              'Select Items',
+              '$hintText',
               style: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).hintColor,
               ),
             ),
             items: items.map((item) {
-              return DropdownMenuItem<T>(
+              return DropdownItem<T>(
+                height: 40,
                 value: item,
-                // Disable default onTap to avoid closing menu when selecting an item
-                enabled: false,
                 child: StatefulBuilder(
                   builder: (context, menuSetState) {
                     final isSelected = selectedItems.contains(item);
                     return InkWell(
                       onTap: () {
-                        isSelected ? selectedItems.remove(item) : selectedItems.add(item);
+                        isSelected
+                            ? selectedItems.remove(item)
+                            : selectedItems.add(item);
                         onSelectionChanged(selectedItems);
                         menuSetState(() {});
                       },
@@ -71,9 +74,6 @@ class MultiSelectDropDown<T> extends StatelessWidget {
                 ),
               );
             }).toList(),
-            // Use last selected item as the current value so if we've limited menu height, it scrolls to the last item.
-            value: selectedItems.isEmpty ? null : selectedItems.last,
-            onChanged: (value) {},
             selectedItemBuilder: (context) {
               return items.map(
                 (item) {
@@ -95,13 +95,12 @@ class MultiSelectDropDown<T> extends StatelessWidget {
               padding: EdgeInsets.only(left: 16, right: 8),
               height: 50,
               decoration: BoxDecoration(
-                color: secondaryColor,
+                color: AppColor.lightGrey,
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
             menuItemStyleData: const MenuItemStyleData(
-              height: 40,
               padding: EdgeInsets.zero,
             ),
           ),

@@ -45,3 +45,24 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# iOS Pods (generated, not needed in version control)
+ios/Pods/
+ios/Podfile.lock
+ios/Flutter/ephemeral/
+ios/Runner/GeneratedPluginRegistrant.h
+ios/Runner/GeneratedPluginRegistrant.m
+
+# Flutter generated iOS files
+ios/Flutter/Flutter*.podspec
+ios/Flutter/Generated*.xcconfig
+ios/Flutter/flutter_export_environment*.sh
+
+# iCloud files
+*.icloud
+
+# Temp/analysis files
+analyze.txt
+out.txt
+out2.txt
+devtools_options.yaml

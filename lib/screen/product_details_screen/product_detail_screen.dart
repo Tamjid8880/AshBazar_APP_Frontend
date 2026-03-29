@@ -1,58 +1,18 @@
-import 'package:get/get.dart';
+import 'package:e_commerce_flutter/utility/extensions.dart';
+
+import 'provider/product_detail_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:e_commerce_flutter/src/model/product.dart';
-import 'package:e_commerce_flutter/src/controller/product_controller.dart';
-import '../../../../utility/app_color.dart';
+import 'package:provider/provider.dart';
 import '../../../../widget/carousel_slider.dart';
 import '../../../../widget/page_wrapper.dart';
+import '../../models/product.dart';
+import '../../widget/horizondal_list.dart';
 import 'components/product_rating_section.dart';
-
-
-final ProductController controller = Get.put(ProductController());
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
 
   const ProductDetailScreen(this.product, {super.key});
-
-
-
-
-
-  Widget productSizesListView() {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: controller.sizeType(product).length,
-      itemBuilder: (_, index) {
-        return InkWell(
-          onTap: () => controller.switchBetweenProductSizes(product, index),
-          child: AnimatedContainer(
-            margin: const EdgeInsets.only(right: 5, left: 5),
-            alignment: Alignment.center,
-            width: controller.isNominal(product) ? 40 : 70,
-            decoration: BoxDecoration(
-              color: controller.sizeType(product)[index].isSelected == false ? Colors.white : AppColor.lightOrange,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Colors.grey,
-                width: 0.4,
-              ),
-            ),
-            duration: const Duration(milliseconds: 300),
-            child: FittedBox(
-              child: Text(
-                controller.sizeType(product)[index].numerical,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +45,7 @@ class ProductDetailScreen extends StatelessWidget {
                       bottomLeft: Radius.circular(200),
                     ),
                   ),
-                  child: CarouselSlider(items: product.images),
+                  child: CarouselSlider(items: product.images ?? []),
                 ),
                 const SizedBox(height: 20),
                 Padding(
@@ -95,7 +55,7 @@ class ProductDetailScreen extends StatelessWidget {
                     children: [
                       //? product nam e
                       Text(
-                        product.name,
+                        '${product.name}',
                         style: Theme.of(context).textTheme.displayMedium,
                       ),
                       const SizedBox(height: 10),
@@ -106,12 +66,14 @@ class ProductDetailScreen extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            product.off != null ? "\$${product.off}" : "\$${product.price}",
+                            product.offerPrice != null
+                                ? "\$${product.offerPrice}"
+                                : "\$${product.price}",
                             style: Theme.of(context).textTheme.displayLarge,
                           ),
                           const SizedBox(width: 3),
                           Visibility(
-                            visible: product.off != null ? true : false,
+                            visible: product.offerPrice != product.price,
                             child: Text(
                               "\$${product.price}",
                               style: const TextStyle(
@@ -123,26 +85,54 @@ class ProductDetailScreen extends StatelessWidget {
                           ),
                           const Spacer(),
                           Text(
-                            product.isAvailable ? "Available stock : 10" : "Not available",
+                            product.quantity != 0
+                                ? "Available stock : ${product.quantity}"
+                                : "Not available",
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           )
                         ],
                       ),
                       const SizedBox(height: 30),
+                      product.proVariantId!.isNotEmpty
+                          ? Text(
+                              'Available ${product.proVariantTypeId?.type}',
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 16),
+                            )
+                          : const SizedBox(),
+                      Consumer<ProductDetailProvider>(
+                        builder: (context, proDetailProvider, child) {
+                          return HorizontalList(
+                            items: product.proVariantId ?? [],
+                            itemToString: (val) => val,
+                            selected: proDetailProvider.selectedVariant,
+                            onSelect: (val) {
+                              proDetailProvider.selectedVariant = val;
+                              proDetailProvider.updateUI();
+                            },
+                          );
+                        },
+                      ),
                       //? product description
                       Text(
                         "About",
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 10),
-                      Text(product.about),
+                      Text("${product.description}"),
                       const SizedBox(height: 40),
                       //? add to cart button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: product.isAvailable ? () => controller.addToCart(product) : null,
-                          child: const Text("Add to cart"),
+                          onPressed: product.quantity != 0
+                              ? () {
+                                  //TODO: should complete call addToCart
+                                  context.proDetailProvider.addToCart(product);
+                                }
+                              : null,
+                          child: const Text("Add to cart",
+                              style: TextStyle(color: Colors.white)),
                         ),
                       )
                     ],

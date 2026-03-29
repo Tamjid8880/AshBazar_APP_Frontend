@@ -1,7 +1,7 @@
-import 'package:e_commerce_flutter/screen/product_cart_screen/cart_screen.dart';
-import 'package:e_commerce_flutter/screen/product_favorite_screen/favorite_screen.dart';
-import 'package:e_commerce_flutter/screen/product_list_screen/product_list_screen.dart';
-import 'package:e_commerce_flutter/screen/profile_screen/profile_screen.dart';
+import 'product_cart_screen/cart_screen.dart';
+import 'product_favorite_screen/favorite_screen.dart';
+import 'product_list_screen/product_list_screen.dart';
+import 'profile_screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';

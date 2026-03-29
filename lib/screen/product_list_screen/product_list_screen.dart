@@ -1,23 +1,16 @@
-import 'package:get/get.dart';
+import '../../core/data/data_provider.dart';
 import 'package:flutter/material.dart';
-import '../../../../utility/app_color.dart';
-import '../../../../widget/custom_app_bar.dart';
+import 'package:provider/provider.dart';
+import 'components/custom_app_bar.dart';
 import '../../../../widget/product_grid_view.dart';
-import '../../src/controller/product_controller.dart';
 import 'components/category_selector.dart';
 import 'components/poster_section.dart';
-
-
-enum AppbarActionType { leading, trailing }
-
-final ProductController controller = Get.put(ProductController());
 
 class ProductListScreen extends StatelessWidget {
   const ProductListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    controller.getAllItems();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: const CustomAppBar(),
@@ -37,39 +30,25 @@ class ProductListScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const PosterSection(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Top categories",
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(foregroundColor: AppColor.darkOrange),
-                      child: Text(
-                        "SEE ALL",
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(color: Colors.deepOrange.withOpacity(0.7)),
-                      ),
-                    )
-                  ],
+                Text(
+                  "Top categories",
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                CategorySelector(
-                  categories: controller.categories,
-                  onItemPressed: (index) {
-                    controller.filterItemsByCategory(index);
+                const SizedBox(height: 5),
+                Consumer<DataProvider>(
+                  builder: (context, dataProvider, child) {
+                    return CategorySelector(
+                      categories: dataProvider.categories,
+                    );
                   },
                 ),
-                GetBuilder(builder: (ProductController controller) {
-                  return ProductGridView(
-                    items: controller.filteredProducts,
-                    likeButtonPressed: (index) => controller.isFavorite(index),
-                    isPriceOff: (product) => controller.isPriceOff(product),
-                  );
-                }),
+                Consumer<DataProvider>(
+                  builder: (context, dataProvider, child) {
+                    return ProductGridView(
+                      items: dataProvider.products,
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -77,8 +56,4 @@ class ProductListScreen extends StatelessWidget {
       ),
     );
   }
-
-
-
-
 }
