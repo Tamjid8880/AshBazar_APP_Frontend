@@ -8,6 +8,7 @@ import '../../models/order.dart';
 import '../../models/poster.dart';
 import '../../models/product.dart';
 import '../../models/sub_category.dart';
+import '../../models/user.dart';
 import '../../services/http_services.dart';
 import '../../utility/snack_bar_helper.dart';
 
@@ -36,8 +37,8 @@ class DataProvider extends ChangeNotifier {
   List<Poster> _filteredPosters = [];
   List<Poster> get posters => _filteredPosters;
 
-  final List<Order> _allOrders = [];
-  final List<Order> _filteredOrders = [];
+  List<Order> _allOrders = [];
+  List<Order> _filteredOrders = [];
   List<Order> get orders => _filteredOrders;
 
   DataProvider() {
@@ -222,7 +223,26 @@ class DataProvider extends ChangeNotifier {
   }
 
   //TODO: should complete getAllOrderByUser
-
+  Future<List<Order>> getAllOrderByUser(User? user, {bool showSnack = false}) async {
+    try {
+      final userId = user?.sId;
+      Response response = await service.getItems(endpointUrl: 'orders/orderByUserId/$userId');
+      if (response.isOk) {
+        ApiResponse<List<Order>> apiResponse = ApiResponse<List<Order>>.fromJson(
+          response.body,
+          (json) => (json as List).map((item) => Order.fromJson(item)).toList(),
+        );
+        _allOrders = apiResponse.data ?? [];
+        _filteredOrders = List.from(_allOrders);
+        notifyListeners();
+        if (showSnack) SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+      }
+    } catch (e) {
+      if (showSnack) SnackBarHelper.showErrorSnackBar(e.toString());
+      rethrow;
+    }
+    return _filteredOrders;
+  }
   double calculateDiscountPercentage(num originalPrice, num? discountedPrice) {
     if (originalPrice <= 0) {
       throw ArgumentError('Original price must be greater than zero.');
